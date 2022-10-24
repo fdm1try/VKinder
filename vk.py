@@ -22,11 +22,13 @@ def get_popular_photos(vk: vk_api.VkApi, user_id, count=3):
 # нельзя найти более 1000 пользователей, даже если указать офсет 1000
 # поэтому придется играть на критериях, как вариант:
 # сначала выводить "в активном поиске", потом "не женат/не замужем" (нет фильтра "статус не указан")
-def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, status=6, count=10, offset=0) -> list:
+def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, age_from: int, age_to: int, status=6, count=10, offset=0):
     """
     :param vk:
     :param city_id: id города
     :param sex: пол 1 - женский, 2 - мужской
+    :param from_age: начало возрастного диапазона
+    :param age_to: конец возрастного диапазона
     :param status: 6 по умолчанию - в активном поиске, 0 - любой
     :param count: количество для выборки до фильтрации
     :param offset: смещение для выборки до фильтрации
@@ -36,11 +38,15 @@ def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, status=6, count=10, offs
         "city": city_id,
         "sex": sex,
         "sort": 0,
-        "has_photo": 1,
+        "from_age": age_from,
+        "age_to": age_to,
+        "age_from": 1,
         "status": status,
         "count": count,
-        "offset": offset
+        "offset": offset,
     })
+    if not users.get('count'):
+        return None
     return [user for user in users['items'] if user['can_access_closed']]
 
 
@@ -48,10 +54,8 @@ def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, status=6, count=10, offs
 # ["photo<owner_id>_<photo_id>, ...]
 # переформатировать фото, полученные функцией get_popular_photos, в медиассылки можно так:
 # map(get_photo_attachment_link, get_popular_photos(*args))
-# сообщения от бота нужно отправлять указывая chat_id, user_id нельзя передавать.
-def send_message(vk: vk_api.VkApi, user_id, chat_id, message, attachments: list = [], reply_to=None):
+def send_message(vk: vk_api.VkApi, chat_id, message, attachments: list = [], reply_to=None):
     result = vk.method("messages.send", {
-        "user_id": user_id,
         "chat_id": chat_id,
         "message": message,
         "random_id": get_random_id(),
