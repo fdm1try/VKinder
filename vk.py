@@ -48,9 +48,11 @@ def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, status=6, count=10, offs
 # ["photo<owner_id>_<photo_id>, ...]
 # переформатировать фото, полученные функцией get_popular_photos, в медиассылки можно так:
 # map(get_photo_attachment_link, get_popular_photos(*args))
-def send_message(vk: vk_api.VkApi, user_id, message, attachments: list = [], reply_to=None):
+# сообщения от бота нужно отправлять указывая chat_id, user_id нельзя передавать.
+def send_message(vk: vk_api.VkApi, user_id, chat_id, message, attachments: list = [], reply_to=None):
     result = vk.method("messages.send", {
         "user_id": user_id,
+        "chat_id": chat_id,
         "message": message,
         "random_id": get_random_id(),
         "attachment": ",".join(attachments),
