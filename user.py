@@ -81,6 +81,7 @@ class UserMatching:
             else:
                 return None
         if len(self._variants):
+            self.user.search_filter.offset += 1
             return self._variants.pop(0)
         params = self.user.search_filter
         if not (params and params.city_id and params.sex and params.age_from and params.age_to and params.status):
