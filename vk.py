@@ -27,7 +27,7 @@ def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, age_from: int, age_to: i
     :param vk:
     :param city_id: id города
     :param sex: пол 1 - женский, 2 - мужской
-    :param from_age: начало возрастного диапазона
+    :param age_from: начало возрастного диапазона
     :param age_to: конец возрастного диапазона
     :param status: 6 по умолчанию - в активном поиске, 0 - любой
     :param count: количество для выборки до фильтрации
@@ -38,16 +38,16 @@ def get_open_user_pages(vk: vk_api.VkApi, city_id, sex, age_from: int, age_to: i
         "city": city_id,
         "sex": sex,
         "sort": 0,
-        "from_age": age_from,
+        "age_from": age_from,
         "age_to": age_to,
-        "age_from": 1,
         "status": status,
         "count": count,
         "offset": offset,
     })
-    if not users.get('count'):
+    items = users.get('items')
+    if not len(items):
         return None
-    return [user for user in users['items'] if user['can_access_closed']]
+    return [user for user in items if user['can_access_closed']]
 
 
 # attachment - это список медиассылок, например для фото они выглядят так:
