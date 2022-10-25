@@ -78,6 +78,8 @@ class UserMatching:
                 self.user.search_filter.status = 1
                 self._variants = []
                 return self.next()
+            else:
+                return None
         if len(self._variants):
             return self._variants.pop(0)
         params = self.user.search_filter
