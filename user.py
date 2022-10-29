@@ -1,8 +1,6 @@
 import vk_api
 import vk
 
-CACHE_VARIANT_COUNT = 5
-
 
 class UserSearchFilter:
     def __init__(self, city_id: int, sex: int, age_from: int, age_to: int, status: int = 6, offset: int = 0):
@@ -70,7 +68,12 @@ class UserMatching:
     def __init__(self, vk_session: vk_api, current_user: User):
         self._variants = []
         self._vk = vk_session
+        self._history = []
         self.user = current_user
+
+    @property
+    def history(self):
+        return self._history[:]
 
     def next(self):
         if self._variants is None:
@@ -78,15 +81,17 @@ class UserMatching:
                 self.user.search_filter.status = 1
                 self._variants = []
                 return self.next()
-            else:
-                return None
-        if len(self._variants):
+            return None
+        while self._variants and len(self._variants):
+            variant = self._variants.pop(0)
             self.user.search_filter.offset += 1
-            return self._variants.pop(0)
+            if variant['id'] not in self._history:
+                self._history.append(variant['id'])
+                return variant
         params = self.user.search_filter
         if not (params and params.city_id and params.sex and params.age_from and params.age_to and params.status):
             raise Exception('Фильтры поиска не заполнены!')
-        self._variants = vk.get_open_user_pages(vk=self._vk, count=CACHE_VARIANT_COUNT, city_id=params.city_id,
+        self._variants = vk.get_open_user_pages(vk=self._vk, count=1000, city_id=params.city_id,
                                                 sex=params.sex, age_from=params.age_from, age_to=params.age_to,
                                                 status=params.status, offset=params.offset)
         return self.next()
