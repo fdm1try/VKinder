@@ -100,7 +100,7 @@ def start():
                                                          "Продолжить поиск? (Да/Нет)")
                                             favourites.append(variant['id'])
                                         elif event.obj['message']['text'] == '0':
-                                            send_message(vk_group, peer_id=peer_id, "Избранное:")
+                                            send_message(vk_group, peer_id=peer_id, message="Избранное:")
                                             for favourite in favourites:
                                                 favourite_info = get_user_info(vk_session, favourite)
                                                 favourite_name = favourite_info[0]['first_name']
