@@ -30,7 +30,7 @@ def start():
                     req_sex = 1
                 while True:
                     if app_user.stage == 0:
-                        send_message(vk_group, peer_id,
+                        send_message(vk_group, peer_id=peer_id, message=
                                      "Привет!\nМеня зовут VKinder, и я - бот для поиска пары.\n"
                                      "Укажи интересующий тебя возрастной диапазон\nВ формате '18 99', где:\n"
                                      "18 - минимальный возраст,\n99 - максимальный возраст")
@@ -39,7 +39,7 @@ def start():
                         if event.type == VkBotEventType.MESSAGE_NEW:
                             words = event.obj['message']['text'].split()
                             if len(words) != 2:
-                                send_message(vk_group, peer_id,
+                                send_message(vk_group, peer_id=peer_id, message=
                                              'Возрастной диапазон задан не верно\n'
                                              'Перезапуск...')
                                 app_user.stage = 0
@@ -48,7 +48,7 @@ def start():
                                 int(words[0])
                                 int(words[1])
                             except Exception:
-                                send_message(vk_group, peer_id,
+                                send_message(vk_group, peer_id=peer_id, message=
                                              'Возрастной диапазон задан не верно\n'
                                              'Перезапуск...')
                                 app_user.stage = 0
@@ -56,12 +56,12 @@ def start():
                             age_from = int(words[0])
                             age_to = int(words[1])
                             if age_to < age_from:
-                                send_message(vk_group, peer_id,
-                                             'Возрастной диапазон задан не верно\n'
+                                send_message(vk_group, peer_id=peer_id,
+                                             message='Возрастной диапазон задан не верно\n'
                                              'Перезапуск...')
                                 app_user.stage = 0
                                 break
-                            send_message(vk_group, peer_id,
+                            send_message(vk_group, peer_id=peer_id, message=
                                          f"Ок. Буду искать не моложе {age_from}"
                                          f" и не старше {age_to} лет.\nНачинаем(Да/Нет)")
                             app_user.search_filter = UserSearchFilter(city_id=req_city_id, sex=req_sex,
@@ -72,28 +72,28 @@ def start():
                                 for event in longpoll.listen():
                                     if event.type == VkBotEventType.MESSAGE_NEW:
                                         if event.obj['message']['text'].lower() == 'да':
-                                            send_message(vk_group, peer_id, "Ищу...")
+                                            send_message(vk_group, peer_id=peer_id, message="Ищу...")
                                             user_mathcing.next()
                                             variant = user_mathcing.next()
                                             if variant is not None:
                                                 photos = get_popular_photos(vk_session, variant['id'])
-                                                send_message(vk_group, peer_id,
+                                                send_message(vk_group, peer_id=peer_id, message=
                                                              f"{variant['first_name']} {variant['last_name']}\n"
                                                              f"https://vk.com/id{variant['id']}\n",
                                                              reply_to=event.obj['message']['id'],
-                                                             attachments=list(map(get_photo_attachment_link, photos)))
-                                                send_message(vk_group, peer_id,
+                                                             attachments=(map(get_photo_attachment_link, photos)))
+                                                send_message(vk_group, peer_id=peer_id, message=
                                                              "\n\n1 - добавить в Избранное\n"
                                                              "0 - просмотреть Избранное\n"
                                                              "R - начать сначала\n\n"
                                                              "Продолжить поиск? (Да/Нет)\n")
                                             else:
-                                                send_message(vk_group, peer_id,
+                                                send_message(vk_group, peer_id=peer_id, message=
                                                              "Похоже больше я не смогу ничего найти.\n"
                                                              "0 - просмотреть Избранное\n"
                                                              "R - начать сначала")
                                         elif event.obj['message']['text'] == '1':
-                                            send_message(vk_group, peer_id,
+                                            send_message(vk_group, peer_id=peer_id, message=
                                                          "Добавляю в Избранное...\n\n"
                                                          "0 - просмотреть Избранное\n"
                                                          "R - начать сначала\n"
@@ -106,21 +106,21 @@ def start():
                                                 favourite_name = favourite_info[0]['first_name']
                                                 favourite_surname = favourite_info[0]['last_name']
                                                 photos = get_popular_photos(vk_session, favourite)
-                                                send_message(vk_group, peer_id,
+                                                send_message(vk_group, peer_id=peer_id,
                                                              message=f"\n\n{favourite_name} {favourite_surname}\n"
                                                                      f"https://vk.com/id{favourite}\n",
                                                              reply_to=event.obj['message']['id'],
                                                              attachments=list(map(get_photo_attachment_link, photos)))
-                                            send_message(vk_group, peer_id,
+                                            send_message(vk_group, peer_id=peer_id, message=
                                                          "\n\nR - начать сначала"
                                                          "\nПоискать ещё? (Да/Нет)")
                                         elif event.obj['message']['text'].lower() == 'нет':
-                                            send_message(vk_group, peer_id,
+                                            send_message(vk_group, peer_id=peer_id, message=
                                                          "Поиск остановлен.\nДа - поиск\n "
                                                          "0 - просмотреть Избранное\n"
                                                          "R - начать сначала")
                                         elif event.obj['message']['text'].lower() == 'r':
-                                            send_message(vk_group, peer_id,
+                                            send_message(vk_group, peer_id=peer_id, message=
                                                          "Перезапуск...\n"
                                                          "Избранные сохраняются\n")
                                             app_user.stage = 0
