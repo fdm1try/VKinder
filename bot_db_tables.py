@@ -33,16 +33,7 @@ class Favourites(Base):
     vk_user_id = Column(Integer, primary_key=True)
     user_id = Column(sq.Integer, ForeignKey('users.id'), unique=True)
     users = relationship('Users', backref = 'favourites')
-    
-class Blacklist(Base):
-    __tablename__ = 'blacklist'
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(sq.Integer, ForeignKey('users.id'), unique=True)
-    vk_user_id = Column(Integer, unique=True, nullable=False)
-    users = relationship('Users', backref = 'blacklist')
-    
-   
+       
 class User_search_history(Base):
     __tablename__ = 'user_search_history'
     id = Column(Integer, primary_key=True)
