@@ -36,7 +36,7 @@ class Favourites(Base):
        
 class User_search_history(Base):
     __tablename__ = 'user_search_history'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(sq.Integer, ForeignKey('users.id'), unique=True)
     vk_user_id = Column(Integer, unique=True, nullable=False)
     users = relationship('Users', backref = 'search_history')
