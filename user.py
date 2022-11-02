@@ -60,7 +60,6 @@ class User:
         self.user_id = user_id
         self.first_name = first_name
         self.last_name = last_name
-        self.stage = stage
         self.search_filter = search_filter
         self.birth_date = None
 
