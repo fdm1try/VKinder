@@ -1,92 +1,109 @@
 import bot_db_tables as db
 from typing import List
 from bot_db_tables import Users, User_search_history, Favourites
-from sqlalchemy.sql import exists   
+from user import User, UserSearchFilter
 
-def add_user_todb(self, search_status: int = 6, offset: int = 0, session = db.Session.orm) -> None:
+def add_user(user:User) -> User:
+    user_id = user.user_id
+    stage = user.stage
+    city_id = user.search_filter.city_id
+    sex = user.search_filter.sex
+    age_from = user.search_filter.age_from
+    age_to = user.search_filter.age_to
+    search_status = user.search_filter.status
+    offset = user.search_filter.offset
     """Метод добавляет пользователя чат-бота в таблицу Users
 
     Args:
-        search_status (int, optional): статус поиска, по умолчанию задаем 6 (принимает значения 1 или 6).
-        offset (int, optional): параметр поиска. По умолчанию 0.
-        session (_type_, optional): специальный объект - сессия, для подключения к БД.
+        user: экземпляр класса User
+        
     """
     
-    user =Users(id = self.user_id, city_id=self.search_filter.city_id, sex=self.search_filter.sex, stage = self.stage, 
-    age_from=self.search_filter.age_from, age_to=self.search_filter.age_to, search_status=self.search_status, offset=self.offset)
-    if not session.query(exists().where(Users.id == self.user_id)).all():
-        with session():
-            session.add(user)
+    user =Users(id = user_id, city_id=city_id, sex=sex, stage = stage, age_from=age_from, age_to=age_to, search_status=search_status, offset=offset)
+    with db.Session_orm() as session:
+        if session.query(Users).filter(Users.id==user_id).all():
+            print("Пользователь с таким id уже существует в базе данных")
+        else: session.add(user), session.commit()
+
+
+def search_user(user_id: int) -> User:
     
-    
-def search_user(self, user_id: int, session = db.Session.orm) -> Query:
     """Метод осуществляет поиск пользователя чат-бота в таблице Users по заданному user_id
 
     Args:
         user_id (int): идентификатор пользователя.
-        session (_type_, optional): специальный объект - сессия, для подключения к БД.
 
     Returns:
-        Метод возвращает одну запись с данными о пользователе из таблицы Users
+        Метод возвращает одну запись с данными о пользователе из таблицы Users (данные экземпляра класса User)
     """
     
-    with session():
-       return session.query(Users).filter(Users.id == self.user_id).one()
-    
-def update_user(self,city_id: int, sex: int, stage: int, age_from: int, age_to: int,
-                search_status:int, offset: int,  session = db.Session.orm) -> None:
-    """Метод обновляет данные о пользователе в таблице Users
-
-    Args:
-        city_id (int): идентификатор города.
-        sex (int): пол пользователя чат-бота (1 или 2).
-        stage (int): этап поиска, на котором находится пользователь.
-        age_from (int): возраст, с которого необходимо начать поиск.
-        age_to (int): возрастная граница окончания поиска.
-        search_status (int): статус поиска (1 или 6).
-        offset (int): параметр поиска.
-        session (_type_, optional): специальный объект - сессия, для подключения к БД.
-    """
-
-    with session():
-        session.query(Users).filter(Users.id == self.user_id).update({'city_id': self.city_id, 'sex': self.sex, 'stage': self.stage,
-        'age_from': self.age_from, 'age_to': self.age_to, 'search_status': self.search_status, 'offset': self.offset}, synchronize_session = False)
+    with db.Session_orm() as session:   
+        print(session.query(Users).filter(Users.id == user_id).one())
         
-def add_favourite(self, favourites: List[int], session = db.Session.orm) -> None:
+def update_user(user:User) -> User:
+    user_id = user.user_id
+    stage = user.stage
+    city_id = user.search_filter.city_id
+    sex = user.search_filter.sex
+    age_from = user.search_filter.age_from
+    age_to = user.search_filter.age_to
+    search_status = user.search_filter.status
+    offset = user.search_filter.offset
+    
+    """Метод обновляет данные о пользователе в таблице Users
+    Args:
+        Args:
+        user: экземпляр класса User
+        
+    """
+
+    with db.Session_orm() as session:
+        session.query(Users).filter(Users.id == user_id).update({'city_id': city_id, 'sex': sex, 'stage': stage,
+        'age_from': age_from, 'age_to': age_to, 'search_status': search_status, 'offset': offset}, synchronize_session = False)
+        session.commit()
+
+def add_favourite(user:User, favourites: List[int]) -> None:
+    user_id = user.user_id
     """Метод добавляет понравившегося пользователя vk в таблицы Favourites и User_search_history БД
 
     Args:
         favourites (List[int]): список всех понравившихся пользователей.
-        session (_type_, optional): специальный объект - сессия, для подключения к БД.
     """
    
     for favourite in favourites:
-        favourite_user = Favourites(vk_user_id = favourite, user_id=self.user_id)
-        user_history = User_search_history(user_id = self.user_id,vk_user_id = favourite)
-        with session():
-            session.add([favourite_user, user_history])
+        with db.Session_orm() as session:
+            favourite_user = Favourites(vk_user_id = favourite, user_id=user_id)
+            user_history = User_search_history(user_id = user_id,vk_user_id = favourite)
+            session.add_all([favourite_user, user_history]), session.commit()
         
-def search_favourite(favourites, vk_user_id,session = db.session.orm) -> Query:
+def search_favourite(vk_user_id):
     """Метод осуществляет поиск понравившегося пользователя в таблице Favourites по введенному идентификатору - vk_user_id
 
     Args:
         vk_user_id (_type_): идентификатор избранного пользователя vk.
-        session (_type_, optional): специальный объект - сессия, для подключения к БД.
         
     Returns:
         Метод возвращает все записи с данными о пользователе vk из таблицы Favourites.
     """
    
-    with session():
-        return session.query(Favourites).filter(Favourites.vk_user_id == favourites['vk_user_id']).all()
+    with db.Session_orm() as session:
+        for variant in session.query(Favourites).filter(Favourites.vk_user_id == vk_user_id).all():
+            print(variant)
 
-def delete_favourite(vk_user_id,session = db.Session.orm) -> None:
+def delete_favourite(vk_user_id) -> None:
     """Метод удаляет избранного пользователя из таблиц Favourites и User_search_history
 
     Args:
         vk_user_id (_type_): идентификатор пользователя vk.
-        session (_type_, optional): специальный объект - сессия, для подключения к БД.
     """
-    with session():
+    with db.Session_orm() as session:
         session.query(Favourites).filter(Favourites.vk_user_id == vk_user_id).delete(synchronize_session=False)
-        session.query(User_search_history).filter(User_search_history.vk_user_id == vk_user_id).delete(synchronize_session=False)        
+        session.query(User_search_history).filter(User_search_history.vk_user_id == vk_user_id).delete(synchronize_session=False)
+        session.commit()
+        
+# user1 = User(user_id=12345, first_name='Иван', last_name='Иванов')       
+# user1.search_filter = UserSearchFilter(city_id=1, sex=1, age_from=20, age_to = 25)
+# user2 = User(user_id=12346, first_name='Игорь', last_name='Петров')       
+# user2.search_filter = UserSearchFilter(city_id=2, sex=1, age_from=20, age_to = 25)
+# favourites=[12345]
+# delete_favourite(12345)
