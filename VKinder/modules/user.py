@@ -1,5 +1,5 @@
 import vk_api
-import vk
+from VKinder.modules import vk
 
 
 class UserSearchFilter:
@@ -77,9 +77,13 @@ class UserMatching:
     def __init__(self, vk_session: vk_api, current_user: User):
         self._variants = []
         self._history = []
+        self._current_variant = None
         self.vk_session = vk_session
         self.user = current_user
-        self.current_variant = None
+
+    @property
+    def current_variant(self):
+        return self._current_variant or vk.get_user_info(self.vk_session, self._history[-1])[0]
 
     @property
     def history(self):
@@ -102,14 +106,18 @@ class UserMatching:
         while self._variants and len(self._variants):
             variant = self._variants.pop(0)
             self.user.search_filter.offset += 1
-            if variant['id'] not in self._history:
-                self._history.append(variant['id'])
-                self.current_variant = variant
+            if variant["id"] not in self._history:
+                self._history.append(variant["id"])
+                self._current_variant = variant
                 return variant
         params = self.user.search_filter
         if not (params and params.city_id and params.sex and params.age_from and params.age_to and params.status):
-            raise Exception('Фильтры поиска не заполнены!')
-        self._variants = vk.get_open_user_pages(vk=self.vk_session, count=1000, city_id=params.city_id,
+            raise Exception("Фильтры поиска не заполнены!")
+        self._variants = vk.get_open_user_pages(vk=self.vk_session, count=1000, city_id=1, #params.city_id,
                                                 sex=params.sex, age_from=params.age_from, age_to=params.age_to,
                                                 status=params.status, offset=params.offset)
         return self.next()
+
+    def reset(self):
+        self.user.search_filter.reset_offset()
+        self._variants = []
