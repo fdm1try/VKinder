@@ -113,7 +113,7 @@ class UserMatching:
         params = self.user.search_filter
         if not (params and params.city_id and params.sex and params.age_from and params.age_to and params.status):
             raise Exception("Фильтры поиска не заполнены!")
-        self._variants = vk.get_open_user_pages(vk=self.vk_session, count=1000, city_id=1, #params.city_id,
+        self._variants = vk.get_open_user_pages(vk=self.vk_session, count=1000, city_id=params.city_id,
                                                 sex=params.sex, age_from=params.age_from, age_to=params.age_to,
                                                 status=params.status, offset=params.offset)
         return self.next()
