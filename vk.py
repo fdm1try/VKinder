@@ -1,16 +1,18 @@
+import os
 import re
 from vk_api import VkApi, VkUserPermissions
 from vk_api.utils import get_random_id
 from vk_api.tools import VkTools
 from datetime import date
-from VKinder import config
 
 RE_RU_DATE = re.compile(r"^\d{1,2}\.\d{1,2}\.\d{4}$")
+
+VK_APP_ID = os.getenv("VK_APP_ID")
 VK_REQUIRED_USER_PERMISSIONS = (
         VkUserPermissions.OFFLINE | VkUserPermissions.FRIEND | VkUserPermissions.PHOTOS | VkUserPermissions.WALL
 )
 VK_IMPLICIT_FLOW_URL = (
-    f"https://oauth.vk.com/authorize?client_id={config.VK_APP_ID}&scope={VK_REQUIRED_USER_PERMISSIONS}"
+    f"https://oauth.vk.com/authorize?client_id={VK_APP_ID}&scope={VK_REQUIRED_USER_PERMISSIONS}"
     "&redirect_uri=https://oauth.vk.com/blank.html&response_type=token&state=randomstring"
 )
 

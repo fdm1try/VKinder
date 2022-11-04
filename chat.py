@@ -1,7 +1,7 @@
-import json
-from VKinder.modules import vk
+import vk
 from vk_api import VkApi
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType, VkBotMessageEvent
+import json
 
 
 class Message:
@@ -14,7 +14,7 @@ class Message:
     @property
     def user_id(self):
         if isinstance(self.event_data, VkBotMessageEvent):
-            return self.event_data.message.get("from_id")
+            return self.event_data.message.get('from_id')
 
     @staticmethod
     def from_bot_event(event: VkBotMessageEvent):
