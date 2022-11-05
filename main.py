@@ -18,9 +18,6 @@ if __name__ == "__main__":
         else:
             print("Приложение остановлено.")
             sys.exit(1)
-    chat_bot = VKinder()
-    chat_bot.run()
-    sys.exit()
     error_log = []
     while 1:
         try:
